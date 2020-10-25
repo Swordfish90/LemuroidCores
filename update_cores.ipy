@@ -1,3 +1,4 @@
+# TODO: Update cores to use the new structure.
 cores = [
 	"stella_libretro_android.so.zip",
 	"fceumm_libretro_android.so.zip",
