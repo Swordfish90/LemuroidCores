@@ -1,25 +1,26 @@
-# TODO: Update cores to use the new structure.
 cores = [
-	"stella_libretro_android.so.zip",
-	"fceumm_libretro_android.so.zip",
-        "snes9x_libretro_android.so.zip",
-        "genesis_plus_gx_libretro_android.so.zip",
-        "gambatte_libretro_android.so.zip",
-        "mgba_libretro_android.so.zip",
-        "mupen64plus_next_gles3_libretro_android.so.zip",
-        "pcsx_rearmed_libretro_android.so.zip",
-#        "ppsspp_libretro_android.so.zip",
-        "fbneo_libretro_android.so.zip",
-        "desmume_libretro_android.so.zip"
+	#"stella",
+	#"fceumm",
+        #"snes9x",
+        #"genesis_plus_gx",
+        #"gambatte",
+        #"mgba",
+        #"mupen64plus_next",
+        #"pcsx_rearmed",
+        #"ppsspp",
+        #"fbneo",
+        #"desmume",
+        #"mame2003_plus",
+	"mame2000"
 ]
 
 archs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
 
 for core in cores: 
-	for arch in archs: 
-		core_name = core.replace("_libretro_android.so.zip", "")
-		so_name = core.replace(".zip", "")
-		! wget https://buildbot.libretro.com/nightly/android/latest/$arch/$core -P src/main/jniLibs/$arch 
-		! unzip src/main/jniLibs/$arch/$core -d src/main/jniLibs/$arch 
-		! rm src/main/jniLibs/$arch/$core
-		! mv src/main/jniLibs/$arch/$so_name src/main/jniLibs/$arch/lib$so_name
+	for arch in archs:
+		zip_name = core + "_libretro_android.so.zip"
+		so_name = zip_name.replace(".zip", "")
+		! wget https://buildbot.libretro.com/nightly/android/latest/{arch}/{zip_name} -P lemuroid_core_{core}/src/main/jniLibs/{arch}
+		! unzip lemuroid_core_{core}/src/main/jniLibs/{arch}/{zip_name} -d lemuroid_core_{core}/src/main/jniLibs/{arch} 
+		! rm lemuroid_core_{core}/src/main/jniLibs/{arch}/{zip_name}
+		! mv lemuroid_core_{core}/src/main/jniLibs/{arch}/{so_name} lemuroid_core_{core}/src/main/jniLibs/{arch}/lib{so_name}
