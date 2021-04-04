@@ -1,25 +1,105 @@
+import os
+import pathlib
+
+# Uncomment the cores that require an update
 cores = [
-	"stella_libretro_android.so.zip",
-	"fceumm_libretro_android.so.zip",
-        "snes9x_libretro_android.so.zip",
-        "genesis_plus_gx_libretro_android.so.zip",
-        "gambatte_libretro_android.so.zip",
-        "mgba_libretro_android.so.zip",
-        "mupen64plus_next_gles3_libretro_android.so.zip",
-        #"pcsx_rearmed_libretro_android.so.zip",
-        #"ppsspp_libretro_android.so.zip",
-        "fbneo_libretro_android.so.zip",
-        "desmume_libretro_android.so.zip",
-	"mame2003_plus_libretro_android.so.zip"
+    #("stella", True),
+    #("fceumm", True),
+    #("snes9x", True),
+    #("genesis_plus_gx", True),
+    #("gambatte", True),
+    #("melonds", True),
+    #("mgba", True),
+    #("mupen64plus_next_gles3", True),
+    #("pcsx_rearmed", True),
+    #("ppsspp", True),
+    #("fbneo", True),
+    #("desmume", True),
+    #("mame2003_plus", True),
+    #("prosystem", True),
+    #("handy", True),
+    #("mednafen_pce_fast", True)
 ]
 
 archs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
 
-for core in cores: 
-	for arch in archs: 
-		core_name = core.replace("_libretro_android.so.zip", "")
-		so_name = core.replace(".zip", "")
-		! wget https://buildbot.libretro.com/nightly/android/latest/$arch/$core -P src/main/jniLibs/$arch 
-		! unzip src/main/jniLibs/$arch/$core -d src/main/jniLibs/$arch 
-		! rm src/main/jniLibs/$arch/$core
-		! mv src/main/jniLibs/$arch/$so_name src/main/jniLibs/$arch/lib$so_name
+delivery_install = "<dist:install-time/>"
+
+delivery_on_demand = """
+<dist:on-demand />
+<dist:install-time>
+    <dist:conditions>
+        <dist:device-feature dist:name="android.software.leanback"/>
+    </dist:conditions>
+</dist:install-time>
+"""
+
+manifest_content = """
+<manifest xmlns:dist="http://schemas.android.com/apk/distribution"
+    package="com.swordfish.core.%s"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:hasCode="false"
+        android:extractNativeLibs="true" />
+
+    <dist:module dist:title="@string/core_name_%s">
+        <dist:delivery>
+            %s
+        </dist:delivery>
+        <dist:fusing dist:include="true" />
+    </dist:module>
+</manifest>
+"""
+
+gradle_content = """
+plugins {
+    id("com.android.dynamic-feature")
+    id("kotlin-android")
+    id("kotlin-kapt")
+}
+
+android {
+    defaultConfig {
+        missingDimensionStrategy("opensource", "play")
+        missingDimensionStrategy("cores", "dynamic")
+    }
+    packagingOptions {
+        doNotStrip("*/*/*_libretro_android.so")
+    }
+}
+
+dependencies {
+    implementation(project(":lemuroid-app"))
+    implementation(kotlin(deps.libs.kotlin.stdlib))
+}
+"""
+
+def write_file(chunks, content):
+    pathlib.Path(os.path.join(*chunks[:-1])).mkdir(parents=True, exist_ok=True)
+    gradle_file = open(os.path.join(*chunks), "w")
+    gradle_file.write(content)
+    gradle_file.close()
+
+for (core_name, install) in cores:
+    #! rm -r $core_folder
+    core = core_name + "_libretro_android.so.zip"
+    so_name = core.replace(".zip", "")
+    core_folder = "lemuroid_core_" + core_name
+
+    install_time = delivery_install 
+
+    if not install:
+        install_time = delivery_on_demand 
+
+    write_file([core_folder, "build.gradle.kts"], gradle_content)
+    write_file([core_folder, "src", "main", "AndroidManifest.xml"], manifest_content % (core_name, core_name, install_time))
+
+    for arch in archs:
+        ! wget https://buildbot.libretro.com/nightly/android/latest/$arch/$core -P $core_folder/src/main/jniLibs/$arch
+        ! unzip $core_folder/src/main/jniLibs/$arch/$core -d $core_folder/src/main/jniLibs/$arch
+        ! rm $core_folder/src/main/jniLibs/$arch/$core
+        ! mv $core_folder/src/main/jniLibs/$arch/$so_name $core_folder/src/main/jniLibs/$arch/lib$so_name
+        ! rm -f bundled-cores/src/main/jniLibs/$arch/lib$so_name
+        ! ln -s ../../../../../$core_folder/src/main/jniLibs/$arch/lib$so_name bundled-cores/src/main/jniLibs/$arch/lib$so_name
+
