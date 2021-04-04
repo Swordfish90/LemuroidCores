@@ -3,25 +3,36 @@ import pathlib
 
 # Uncomment the cores that require an update
 cores = [
-    #"stella",
-    #"fceumm",
-    #"snes9x",
-    #"genesis_plus_gx",
-    #"gambatte",
-    #"melonds",
-    #"mgba",
-    #"mupen64plus_next_gles3",
-    #"pcsx_rearmed",
-    #"ppsspp",
-    #"fbneo",
-    #"desmume",
-    #"mame2003_plus"
-    "prosystem",
-    "handy",
-    "mednafen_pce_fast"
+    #("stella", True),
+    #("fceumm", True),
+    #("snes9x", True),
+    #("genesis_plus_gx", True),
+    #("gambatte", True),
+    #("melonds", True),
+    #("mgba", True),
+    #("mupen64plus_next_gles3", True),
+    #("pcsx_rearmed", True),
+    #("ppsspp", True),
+    #("fbneo", True),
+    #("desmume", True),
+    #("mame2003_plus", True),
+    #("prosystem", True),
+    #("handy", True),
+    #("mednafen_pce_fast", True)
 ]
 
 archs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
+
+delivery_install = "<dist:install-time/>"
+
+delivery_on_demand = """
+<dist:on-demand />
+<dist:install-time>
+    <dist:conditions>
+        <dist:device-feature dist:name="android.software.leanback"/>
+    </dist:conditions>
+</dist:install-time>
+"""
 
 manifest_content = """
 <manifest xmlns:dist="http://schemas.android.com/apk/distribution"
@@ -34,12 +45,7 @@ manifest_content = """
 
     <dist:module dist:title="@string/core_name_%s">
         <dist:delivery>
-            <dist:on-demand />
-            <dist:install-time>
-                <dist:conditions>
-                    <dist:device-feature dist:name="android.software.leanback"/>
-                </dist:conditions>
-            </dist:install-time>
+            %s
         </dist:delivery>
         <dist:fusing dist:include="true" />
     </dist:module>
@@ -75,21 +81,25 @@ def write_file(chunks, content):
     gradle_file.write(content)
     gradle_file.close()
 
-for core_name in cores:
+for (core_name, install) in cores:
     #! rm -r $core_folder
     core = core_name + "_libretro_android.so.zip"
     so_name = core.replace(".zip", "")
     core_folder = "lemuroid_core_" + core_name
 
+    install_time = delivery_install 
+
+    if not install:
+        install_time = delivery_on_demand 
+
     write_file([core_folder, "build.gradle.kts"], gradle_content)
-    write_file([core_folder, "src", "main", "AndroidManifest.xml"], manifest_content % (core_name, core_name))
+    write_file([core_folder, "src", "main", "AndroidManifest.xml"], manifest_content % (core_name, core_name, install_time))
 
     for arch in archs:
-        #! wget https://buildbot.libretro.com/nightly/android/latest/$arch/$core -P $core_folder/src/main/jniLibs/$arch
-        #! unzip $core_folder/src/main/jniLibs/$arch/$core -d $core_folder/src/main/jniLibs/$arch
-        #! rm $core_folder/src/main/jniLibs/$arch/$core
-        #! mv $core_folder/src/main/jniLibs/$arch/$so_name $core_folder/src/main/jniLibs/$arch/lib$so_name
+        ! wget https://buildbot.libretro.com/nightly/android/latest/$arch/$core -P $core_folder/src/main/jniLibs/$arch
+        ! unzip $core_folder/src/main/jniLibs/$arch/$core -d $core_folder/src/main/jniLibs/$arch
+        ! rm $core_folder/src/main/jniLibs/$arch/$core
+        ! mv $core_folder/src/main/jniLibs/$arch/$so_name $core_folder/src/main/jniLibs/$arch/lib$so_name
         ! rm -f bundled-cores/src/main/jniLibs/$arch/lib$so_name
-        #! ln -s $core_folder/src/main/jniLibs/$arch/lib$so_name bundled-cores/src/main/jniLibs/$arch/lib$so_name
         ! ln -s ../../../../../$core_folder/src/main/jniLibs/$arch/lib$so_name bundled-cores/src/main/jniLibs/$arch/lib$so_name
-        #! ln -s $core_folder/src/main/jniLibs/$arch/lib$so_name bundled-cores/src/main/jniLibs/$arch/lib$so_name
+
