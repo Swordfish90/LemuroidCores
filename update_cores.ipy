@@ -3,22 +3,22 @@ import pathlib
 
 # Uncomment the cores that require an update
 cores = [
-    #("stella", True),
-    #("fceumm", True),
-    #("snes9x", True),
-    #("genesis_plus_gx", True),
-    #("gambatte", True),
-    #("melonds", True),
-    #("mgba", True),
-    #("mupen64plus_next_gles3", True),
-    #("pcsx_rearmed", True),
-    #("ppsspp", True),
-    #("fbneo", True),
-    #("desmume", True),
-    #("mame2003_plus", True),
-    #("prosystem", True),
-    #("handy", True),
-    #("mednafen_pce_fast", True)
+    "stella",
+    "fceumm",
+    "snes9x",
+    "genesis_plus_gx",
+    "gambatte",
+    "melonds",
+    "mgba",
+    "mupen64plus_next_gles3",
+    "pcsx_rearmed",
+    "ppsspp",
+    "fbneo",
+    "desmume",
+    "mame2003_plus",
+    "prosystem",
+    "handy",
+    "mednafen_pce_fast"
 ]
 
 archs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
@@ -87,10 +87,7 @@ for (core_name, install) in cores:
     so_name = core.replace(".zip", "")
     core_folder = "lemuroid_core_" + core_name
 
-    install_time = delivery_install 
-
-    if not install:
-        install_time = delivery_on_demand 
+    install_time = delivery_on_demand
 
     write_file([core_folder, "build.gradle.kts"], gradle_content)
     write_file([core_folder, "src", "main", "AndroidManifest.xml"], manifest_content % (core_name, core_name, install_time))
