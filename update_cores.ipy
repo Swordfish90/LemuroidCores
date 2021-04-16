@@ -3,22 +3,24 @@ import pathlib
 
 # Uncomment the cores that require an update
 cores = [
-    "stella",
-    "fceumm",
-    "snes9x",
-    "genesis_plus_gx",
-    "gambatte",
-    "melonds",
-    "mgba",
-    "mupen64plus_next_gles3",
-    "pcsx_rearmed",
-    "ppsspp",
-    "fbneo",
-    "desmume",
-    "mame2003_plus",
-    "prosystem",
-    "handy",
-    "mednafen_pce_fast"
+    #"stella",
+    #"fceumm",
+    #"snes9x",
+    #"genesis_plus_gx",
+    #"gambatte",
+    #"melonds",
+    #"mgba",
+    #"mupen64plus_next_gles3",
+    #"pcsx_rearmed",
+    #"ppsspp",
+    #"fbneo",
+    #"desmume",
+    #"mame2003_plus",
+    #"prosystem",
+    #"handy",
+    #"mednafen_pce_fast",
+    #"dosbox_pure"
+    "mednafen_ngp"
 ]
 
 archs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
@@ -81,7 +83,7 @@ def write_file(chunks, content):
     gradle_file.write(content)
     gradle_file.close()
 
-for (core_name, install) in cores:
+for core_name in cores:
     #! rm -r $core_folder
     core = core_name + "_libretro_android.so.zip"
     so_name = core.replace(".zip", "")
