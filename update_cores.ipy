@@ -20,7 +20,8 @@ cores = [
     "handy",
     "mednafen_pce_fast",
     "dosbox_pure",
-    "mednafen_ngp"
+    "mednafen_ngp",
+    "mednafen_wswan"
 ]
 
 archs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
