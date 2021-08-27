@@ -9,7 +9,7 @@ cores = [
     "genesis_plus_gx",
     "gambatte",
     "melonds",
-    #"mgba",
+    "mgba",
     "mupen64plus_next_gles3",
     "pcsx_rearmed",
     #"ppsspp",
@@ -21,7 +21,7 @@ cores = [
     "mednafen_pce_fast",
     "dosbox_pure",
     "mednafen_ngp",
-    "mednafen_wswan"
+    #"mednafen_wswan"
 ]
 
 archs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
