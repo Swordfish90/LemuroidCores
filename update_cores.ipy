@@ -8,10 +8,10 @@ cores = [
     "snes9x",
     "genesis_plus_gx",
     "gambatte",
-    "melonds",
+    #"melonds",
     "mgba",
     "mupen64plus_next_gles3",
-    "pcsx_rearmed",
+    #"pcsx_rearmed",
     #"ppsspp",
     "fbneo",
     "desmume",
@@ -21,7 +21,8 @@ cores = [
     "mednafen_pce_fast",
     "dosbox_pure",
     "mednafen_ngp",
-    #"mednafen_wswan"
+    "mednafen_wswan"
+    #"citra"
 ]
 
 archs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
