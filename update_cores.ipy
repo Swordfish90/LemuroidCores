@@ -3,25 +3,25 @@ import pathlib
 
 # Uncomment the cores that require an update
 cores = [
-    "stella",
-    "fceumm",
-    "snes9x",
-    "genesis_plus_gx",
-    "gambatte",
+    #"stella",
+    #"fceumm",
+    #"snes9x",
+    #"genesis_plus_gx",
+    #"gambatte",
     #"melonds",
-    "mgba",
-    "mupen64plus_next_gles3",
+    #"mgba",
+    #"mupen64plus_next_gles3",
     #"pcsx_rearmed",
     #"ppsspp",
-    "fbneo",
-    "desmume",
+    #"fbneo",
+    #"desmume",
     "mame2003_plus",
-    "prosystem",
-    "handy",
-    "mednafen_pce_fast",
-    "dosbox_pure",
-    "mednafen_ngp",
-    "mednafen_wswan"
+    #"prosystem",
+    #"handy",
+    #"mednafen_pce_fast",
+    #"dosbox_pure",
+    #"mednafen_ngp",
+    #"mednafen_wswan"
     #"citra"
 ]
 
