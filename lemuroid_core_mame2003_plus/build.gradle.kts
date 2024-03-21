@@ -6,6 +6,7 @@ plugins {
 }
 
 android {
+    namespace = "com.swordfish.lemuroid.core.mame2003_plus"
     defaultConfig {
         missingDimensionStrategy("opensource", "play")
         missingDimensionStrategy("cores", "dynamic")

@@ -6,6 +6,7 @@ plugins {
 }
 
 android {
+    namespace = "com.swordfish.lemuroid.core.pcsx_rearmed"
     defaultConfig {
         missingDimensionStrategy("opensource", "play")
         missingDimensionStrategy("cores", "dynamic")

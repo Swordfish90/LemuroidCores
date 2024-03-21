@@ -6,6 +6,7 @@ plugins {
 }
 
 android {
+    namespace = "com.swordfish.lemuroid.core.mednafen_wswan"
     defaultConfig {
         missingDimensionStrategy("opensource", "play")
         missingDimensionStrategy("cores", "dynamic")
