@@ -2,6 +2,11 @@ name: Build ARMSX2 Android core
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - integration/armsx2-cores
+    paths:
+      - '.github/workflows/build-armsx2-android.yml'
 
 permissions:
   contents: read
