@@ -104,11 +104,13 @@ jobs:
 
       - name: Publish stripped core into bundled-cores
         run: |
-          install -D dist/arm64-v8a/armsx2_libretro.so bundled-cores/src/main/jniLibs/arm64-v8a/armsx2_libretro.so
+          install -D dist/arm64-v8a/armsx2_libretro.so bundled-cores/src/main/jniLibs/arm64-v8a/libarmsx2_libretro_android.so
+          install -D dist/arm64-v8a/armsx2_libretro.so lemuroid_core_armsx2/src/main/jniLibs/arm64-v8a/libarmsx2_libretro_android.so
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add bundled-cores/src/main/jniLibs/arm64-v8a/armsx2_libretro.so
+          git add bundled-cores/src/main/jniLibs/arm64-v8a/libarmsx2_libretro_android.so
+          git add lemuroid_core_armsx2/src/main/jniLibs/arm64-v8a/libarmsx2_libretro_android.so
           if ! git diff --cached --quiet; then
-            git commit -m "Add stripped ARMSX2 Android ARM64 core"
+            git commit -m "Add stripped ARMSX2 Android ARM64 core and feature module"
             git push origin HEAD:integration/armsx2-cores
           fi
