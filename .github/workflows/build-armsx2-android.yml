@@ -1,0 +1,90 @@
+name: Build ARMSX2 Android core
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-arm64:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      ANDROID_ABI: arm64-v8a
+      ANDROID_API: "28"
+      ARMSX2_COMMIT: f6df1e69255544241132d66441f2f1338fd90bfd
+    steps:
+      - name: Checkout LemuroidCores
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build python3 git flex bison build-essential
+
+      - name: Set up Android SDK and NDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install pinned NDK
+        run: |
+          sdkmanager "ndk;27.2.12479018"
+          echo "ANDROID_NDK=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
+
+      - name: Checkout ARMSX2 source
+        uses: actions/checkout@v4
+        with:
+          repository: ARMSX2/ARMSX2
+          ref: ${{ env.ARMSX2_COMMIT }}
+          path: armsx2
+          submodules: recursive
+
+      - name: Build Android dependencies
+        working-directory: armsx2
+        run: |
+          chmod +x .github/workflows/scripts/android/build-dependencies.sh
+          ./.github/workflows/scripts/android/build-dependencies.sh "$GITHUB_WORKSPACE/armsx2-deps"
+
+      - name: Configure ARMSX2 libretro core
+        working-directory: armsx2
+        run: |
+          cmake -S . -B build-android -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI="$ANDROID_ABI" \
+            -DANDROID_PLATFORM="android-$ANDROID_API" \
+            -DANDROID_STL=c++_static \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/armsx2-deps" \
+            -DCMAKE_FIND_ROOT_PATH="$GITHUB_WORKSPACE/armsx2-deps" \
+            -DENABLE_LIBRETRO=ON \
+            -DENABLE_QT_UI=OFF \
+            -DENABLE_SDL_FRONTEND=OFF \
+            -DENABLE_GSRUNNER=OFF \
+            -DENABLE_TESTS=OFF \
+            -DENABLE_RECOMPILER_TEST_HOOKS=OFF \
+            -DENABLE_SETCAP=OFF \
+            -DUSE_BACKTRACE=OFF \
+            -DUSE_OPENGL=ON \
+            -DUSE_VULKAN=OFF \
+            -DX11_API=OFF \
+            -DWAYLAND_API=OFF \
+            -DDISABLE_ADVANCE_SIMD=TRUE \
+            -DARMSX2_ANDROID_HOST_PAGE_SIZE=0x1000 \
+            -DCMAKE_DISABLE_PRECOMPILE_HEADERS=ON
+
+      - name: Build ARM64 core
+        working-directory: armsx2
+        run: cmake --build build-android --target armsx2_libretro --parallel 2
+
+      - name: Verify core artifact
+        run: |
+          test -s armsx2/build-android/bin/armsx2_libretro.so
+          file armsx2/build-android/bin/armsx2_libretro.so
+          llvm-readelf -h armsx2/build-android/bin/armsx2_libretro.so
+
+      - name: Upload ARM64 core artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: armsx2-libretro-android-arm64-v8a
+          path: armsx2/build-android/bin/armsx2_libretro.so
+          if-no-files-found: error
