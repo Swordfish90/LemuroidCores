@@ -9,7 +9,7 @@ on:
       - '.github/workflows/build-armsx2-android.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-arm64:
@@ -91,6 +91,8 @@ jobs:
           file "$CORE_PATH"
           "$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -h "$CORE_PATH"
           mkdir -p dist/arm64-v8a
+          "$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" --strip-unneeded "$CORE_PATH"
+          test "$(stat -c%s "$CORE_PATH")" -lt 100000000
           cp "$CORE_PATH" dist/arm64-v8a/armsx2_libretro.so
 
       - name: Upload ARM64 core artifact
@@ -99,3 +101,14 @@ jobs:
           name: armsx2-libretro-android-arm64-v8a
           path: dist/arm64-v8a/armsx2_libretro.so
           if-no-files-found: error
+
+      - name: Publish stripped core into bundled-cores
+        run: |
+          install -D dist/arm64-v8a/armsx2_libretro.so bundled-cores/src/main/jniLibs/arm64-v8a/armsx2_libretro.so
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bundled-cores/src/main/jniLibs/arm64-v8a/armsx2_libretro.so
+          if ! git diff --cached --quiet; then
+            git commit -m "Add stripped ARMSX2 Android ARM64 core"
+            git push origin HEAD:integration/armsx2-cores
+          fi
