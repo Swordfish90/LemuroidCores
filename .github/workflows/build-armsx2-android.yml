@@ -78,13 +78,17 @@ jobs:
 
       - name: Verify core artifact
         run: |
-          test -s armsx2/build-android/bin/armsx2_libretro.so
-          file armsx2/build-android/bin/armsx2_libretro.so
-          llvm-readelf -h armsx2/build-android/bin/armsx2_libretro.so
+          CORE_PATH="$(find armsx2/build-android -type f -name armsx2_libretro.so -print -quit)"
+          test -n "$CORE_PATH"
+          test -s "$CORE_PATH"
+          file "$CORE_PATH"
+          "$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -h "$CORE_PATH"
+          mkdir -p dist/arm64-v8a
+          cp "$CORE_PATH" dist/arm64-v8a/armsx2_libretro.so
 
       - name: Upload ARM64 core artifact
         uses: actions/upload-artifact@v4
         with:
           name: armsx2-libretro-android-arm64-v8a
-          path: armsx2/build-android/bin/armsx2_libretro.so
+          path: dist/arm64-v8a/armsx2_libretro.so
           if-no-files-found: error
