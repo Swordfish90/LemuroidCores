@@ -1,4 +1,4 @@
-name: Build ARMSX2 Android core
+name: Build ARMSX2 Android core # Rebuild with 0.5x resolution support
 
 on:
   workflow_dispatch:
