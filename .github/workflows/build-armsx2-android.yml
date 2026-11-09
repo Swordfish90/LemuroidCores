@@ -18,7 +18,7 @@ jobs:
     env:
       ANDROID_ABI: arm64-v8a
       ANDROID_API: "28"
-      ARMSX2_COMMIT: f6df1e69255544241132d66441f2f1338fd90bfd
+      ARMSX2_COMMIT: ba6892742e357085897d0a151bd8e40485dda968
     steps:
       - name: Checkout LemuroidCores
         uses: actions/checkout@v4
