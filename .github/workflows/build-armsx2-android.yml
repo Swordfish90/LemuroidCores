@@ -46,6 +46,32 @@ jobs:
           path: armsx2
           submodules: recursive
 
+      - name: Add 0.5x internal resolution option
+        working-directory: armsx2
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("pcsx2-libretro/Main.cpp")
+          source = path.read_text()
+          old_options = '{{"1x", "1x (native)"}, {"2x", nullptr}, {"3x", nullptr}, {"4x", nullptr}, {nullptr, nullptr}}, "1x"},'
+          new_options = '{{"0.5x", "0.5x (half native)"}, {"1x", "1x (native)"}, {"2x", nullptr}, {"3x", nullptr}, {"4x", nullptr}, {nullptr, nullptr}}, "1x"},'
+          if source.count(old_options) != 1:
+              raise SystemExit("Could not uniquely locate ARMSX2 resolution option list")
+          source = source.replace(old_options, new_options, 1)
+          old_legacy = '{"armsx2_upscale", "Internal resolution; 1x|2x|3x|4x"},'
+          new_legacy = '{"armsx2_upscale", "Internal resolution; 0.5x|1x|2x|3x|4x"},'
+          if source.count(old_legacy) != 1:
+              raise SystemExit("Could not uniquely locate legacy ARMSX2 resolution option list")
+          source = source.replace(old_legacy, new_legacy, 1)
+          old_scale = 'static_cast<float>(std::clamp(atoi(var.value), 1, 4))'
+          new_scale = 'std::clamp(std::strtof(var.value, nullptr), 0.5f, 4.0f)'
+          if source.count(old_scale) != 1:
+              raise SystemExit("Could not uniquely locate ARMSX2 resolution parser")
+          source = source.replace(old_scale, new_scale, 1)
+          path.write_text(source)
+          print("Added 0.5x option and float parsing to both libretro option APIs.")
+          PY
+
       - name: Build Android dependencies
         working-directory: armsx2
         run: |
